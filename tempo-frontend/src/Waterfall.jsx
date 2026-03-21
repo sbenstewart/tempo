@@ -28,20 +28,23 @@ const { positions: NOTE_POSITIONS, totalWidth: WATERFALL_WIDTH } = generateNoteP
 const PIXELS_PER_SECOND = 150; 
 const WATERFALL_HEIGHT = 400; 
 
-export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
+export function Waterfall({ song, isPlaying, onReset, audioEnabled, activeNotes, isWaitMode }) {
   const canvasRef = useRef(null);
   const timeRef = useRef(0);
   const lastFrameTimeRef = useRef(performance.now());
   const requestRef = useRef();
   
-  // Track which notes are currently making sound
   const playingNotesRef = useRef(new Set());
+  
+  // We use a ref for activeNotes so the animation loop doesn't restart every time you press a key!
+  const activeNotesRef = useRef(activeNotes);
+  useEffect(() => {
+    activeNotesRef.current = activeNotes;
+  }, [activeNotes]);
 
-  // Extract notes once
   const track = song?.tracks.find(t => t.notes.length > 0);
   const notes = track ? track.notes : [];
 
-  // Stop all active audio if the user clicks pause, rewind, or changes songs
   const stopAllActiveNotes = () => {
     playingNotesRef.current.forEach(index => {
       const note = notes[index];
@@ -50,14 +53,12 @@ export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
     playingNotesRef.current.clear();
   };
 
-  // Handle Rewind / New Song
   useEffect(() => {
     timeRef.current = 0;
     lastFrameTimeRef.current = performance.now();
     stopAllActiveNotes();
   }, [song, onReset]);
 
-  // Handle Pausing
   useEffect(() => {
     if (!isPlaying) stopAllActiveNotes();
   }, [isPlaying]);
@@ -67,27 +68,51 @@ export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
     const ctx = canvas.getContext('2d');
 
     const draw = (now) => {
-      if (isPlaying) {
-        const deltaSeconds = (now - lastFrameTimeRef.current) / 1000;
-        timeRef.current += deltaSeconds;
-      }
+      const deltaSeconds = (now - lastFrameTimeRef.current) / 1000;
       lastFrameTimeRef.current = now;
 
+      let shouldPause = false;
+      const currentlyExpected = [];
+
+      // 1. What notes SHOULD be playing right now?
+      notes.forEach(note => {
+        // We add a tiny 0.05s buffer so it doesn't pause unfairly early
+        if (timeRef.current >= note.time && timeRef.current <= (note.time + note.duration - 0.05)) {
+          currentlyExpected.push(note.name);
+        }
+      });
+
+      // 2. WAIT MODE LOGIC: Are you missing any expected notes?
+      if (isWaitMode && currentlyExpected.length > 0) {
+        const missingNotes = currentlyExpected.filter(n => !activeNotesRef.current.includes(n));
+        if (missingNotes.length > 0) {
+          shouldPause = true; // Freeze time!
+        }
+      }
+
+      // 3. Advance time only if playing and not paused by Wait Mode
+      if (isPlaying && !shouldPause) {
+        timeRef.current += deltaSeconds;
+      }
+
+      // Draw Background
       ctx.clearRect(0, 0, WATERFALL_WIDTH, WATERFALL_HEIGHT);
       ctx.fillStyle = '#1a1a1a'; 
       ctx.fillRect(0, 0, WATERFALL_WIDTH, WATERFALL_HEIGHT);
 
+      // Draw Notes
       notes.forEach((note, index) => {
         const pos = NOTE_POSITIONS[note.name];
         if (!pos) return;
 
         const bottomY = (note.time - timeRef.current) * PIXELS_PER_SECOND;
         const noteHeight = note.duration * PIXELS_PER_SECOND;
+        
+        const isNoteActive = timeRef.current >= note.time && timeRef.current <= (note.time + note.duration);
 
-        // --- AUDIO ENGINE TRIGGER ---
-        if (audioEnabled && isPlaying) {
-          const isNoteActive = timeRef.current >= note.time && timeRef.current < (note.time + note.duration);
-          
+        // --- AUDIO TRIGGER (Only play background audio if NOT in Wait Mode) ---
+        // If Wait Mode is on, we expect YOU to play it, so we mute the background track for that note.
+        if (audioEnabled && isPlaying && !isWaitMode) {
           if (isNoteActive && !playingNotesRef.current.has(index)) {
             playingNotesRef.current.add(index);
             playNote(note.name);
@@ -97,9 +122,20 @@ export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
           }
         }
 
-        // --- VISUAL DRAWING ---
+        // --- VISUAL DRAWING & SCORING COLORS ---
         if (bottomY <= WATERFALL_HEIGHT && bottomY + noteHeight >= 0) {
-          ctx.fillStyle = pos.color;
+          let drawColor = pos.color; // Default blue/cyan
+
+          // If the note crosses the bottom line, grade it!
+          if (isNoteActive) {
+            if (activeNotesRef.current.includes(note.name)) {
+              drawColor = '#28a745'; // GREEN: You are playing it correctly!
+            } else {
+              drawColor = isWaitMode ? '#ffc107' : '#dc3545'; // ORANGE: Waiting for you | RED: You missed it!
+            }
+          }
+
+          ctx.fillStyle = drawColor;
           const drawY = WATERFALL_HEIGHT - bottomY - noteHeight;
           
           ctx.fillRect(pos.left, drawY, pos.width, noteHeight);
@@ -114,7 +150,7 @@ export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
 
     requestRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(requestRef.current);
-  }, [song, isPlaying, audioEnabled, notes]);
+  }, [song, isPlaying, audioEnabled, notes, isWaitMode]);
 
   return (
     <canvas 
@@ -124,7 +160,7 @@ export function Waterfall({ song, isPlaying, onReset, audioEnabled }) {
       style={{ 
         display: 'block', 
         border: '2px solid #333',
-        borderBottom: 'none',
+        borderBottom: '4px solid #ff4757', // Added a red "Playhead" line to the bottom
         borderRadius: '8px 8px 0 0',
         backgroundColor: '#1a1a1a'
       }}
