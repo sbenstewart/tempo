@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { playNote, stopNote } from './AudioEngine';
+import { playNote, stopNote } from '../lib/AudioEngine';
 
 const generateNotePositions = (startOctave, endOctave) => {
   const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
