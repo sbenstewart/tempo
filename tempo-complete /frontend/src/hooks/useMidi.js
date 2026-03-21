@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { WebMidi } from 'webmidi';
-import { playNote, stopNote } from './AudioEngine';
+import { playNote, stopNote } from '../lib/AudioEngine';
 
 export function useMidi({ onNoteEvent } = {}) {
   const [isReady, setIsReady] = useState(false);
