@@ -14,16 +14,19 @@ export function ModeSelector() {
   const setMode = useStore((s) => s.setMode);
 
   return (
-    <div className="kf-modes">
-      {MODES.map((m) => (
-        <button
-          key={m.id}
-          className={`kf-mode-pill ${mode === m.id ? 'active' : ''}`}
-          onClick={() => setMode(m.id)}
-        >
-          <span>{m.icon}</span> {m.label}
-        </button>
-      ))}
+    <div className="kf-mode-selector">
+      <h4 className="kf-mode-selector-label">Practice Mode</h4>
+      <div className="kf-modes">
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            className={`kf-mode-pill ${mode === m.id ? 'active' : ''}`}
+            onClick={() => setMode(m.id)}
+          >
+            <span>{m.icon}</span> {m.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

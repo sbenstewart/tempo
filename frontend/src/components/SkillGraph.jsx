@@ -15,7 +15,7 @@ export function SkillGraph() {
 
   return (
     <div className="kf-skills">
-      <h4 className="kf-section-title">Skill Progress</h4>
+      <h4 className="kf-skills-label">Skill Progress</h4>
       <div className="kf-skills-list">
         {skills.map((skill) => {
           const c = CAT_COLORS[skill.category] || CAT_COLORS.scales;
@@ -24,7 +24,7 @@ export function SkillGraph() {
             <div key={skill.id} className="kf-skill-row">
               <div className="kf-skill-info">
                 <span className="kf-skill-name">{skill.name}</span>
-                <span style={{ color: c.text, fontSize: 11, fontFamily: 'monospace' }}>{pct}%</span>
+                <span className="kf-skill-value">{pct}%</span>
               </div>
               <div className="kf-skill-track" style={{ background: c.bg }}>
                 <div className="kf-skill-fill" style={{ width: `${pct}%`, background: c.bar }} />

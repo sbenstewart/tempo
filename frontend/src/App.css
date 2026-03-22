@@ -38,8 +38,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
   overflow-y: auto; background: var(--bg);
 }
 
-.kf-sidebar > * { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-
 /* ── Header ──────────────────────────────────────── */
 .kf-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -114,12 +112,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kf-waterfall-inner { margin: 0 auto; display: inline-flex; flex-direction: column; }
 
 /* ── Controls ────────────────────────────────────── */
-.kf-controls { padding: 10px 16px; border-top: 1px solid var(--border); }
+.kf-controls { 
+  padding: 12px 16px; border-bottom: 1px solid var(--border); 
+  background: var(--bg);
+}
 .kf-controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .kf-btn {
-  padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer;
-  font-size: 14px; font-weight: 600; transition: all 0.15s;
+  padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+  font-size: 13px; font-weight: 600; transition: all 0.15s;
 }
 .kf-btn-accent { background: var(--accent); color: white; box-shadow: 0 0 16px rgba(108,92,231,0.2); }
 .kf-btn-accent:hover { background: var(--accent-light); }
@@ -128,11 +129,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kf-btn-purple { background: var(--purple); color: white; }
 .kf-btn-outline { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
 .kf-btn-outline:hover { border-color: var(--accent); color: var(--text); }
-.kf-btn-sm { padding: 4px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+.kf-btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
 
 .kf-now-playing {
   display: flex; align-items: center; gap: 10px; margin-top: 8px;
   font-size: 13px; color: var(--text-dim);
+  padding: 8px; margin-left: 16px; margin-right: 16px;
+  background: var(--surface-2);
+  border-radius: 8px; border: 1px solid var(--border);
 }
 .kf-np-label { font-size: 11px; color: var(--text-faint); }
 .kf-np-title { color: var(--accent-light); font-weight: 600; }
@@ -154,33 +158,78 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kf-mode-pill:not(.active):hover { border-color: var(--accent); color: var(--text); }
 
 /* ── Song Library ────────────────────────────────── */
-.kf-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 8px; }
-.kf-empty-hint { font-size: 13px; color: var(--text-faint); }
+.kf-section-title { 
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; 
+  color: var(--text-dim); font-family: var(--font-mono); margin-bottom: 10px;
+  margin-top: 8px;
+}
+.kf-empty-hint { font-size: 13px; color: var(--text-faint); padding: 12px 0; }
 
-.kf-song-list { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+.kf-song-library {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+
+.kf-select {
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text); font-size: 13px; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+  margin-bottom: 8px;
+}
+.kf-select:hover { border-color: rgba(108,92,231,0.3); }
+.kf-select:focus { border-color: var(--accent); outline: none; }
+.kf-select option { background: var(--surface); color: var(--text); }
+
+.kf-divider {
+  font-size: 11px; color: var(--text-faint); text-align: center;
+  padding: 8px 0; margin: 8px 0; position: relative;
+}
+.kf-divider::before, .kf-divider::after {
+  content: ''; position: absolute; top: 50%; left: 0; right: 0;
+  height: 1px; background: var(--border);
+}
+.kf-divider::before { right: 30%; }
+.kf-divider::after { left: 30%; }
+
+.kf-tiny-loading {
+  font-size: 12px; color: var(--accent); text-align: center;
+  padding: 6px 0; margin: 6px 0; font-family: var(--font-mono);
+}
+
+.kf-song-list { 
+  display: flex; flex-direction: column; gap: 4px; 
+  max-height: 180px; overflow-y: auto; margin-bottom: 10px; 
+}
 .kf-song-item {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
   background: var(--surface-2); cursor: pointer; transition: all 0.15s;
   text-align: left; width: 100%;
 }
-.kf-song-item:hover { border-color: rgba(108,92,231,0.3); }
-.kf-song-item.active { border-color: var(--accent); background: rgba(108,92,231,0.1); }
+.kf-song-item:hover { border-color: rgba(108,92,231,0.3); background: var(--surface-3); }
+.kf-song-item.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
 .kf-song-name { font-size: 13px; font-weight: 500; color: var(--text); }
 .kf-song-item.active .kf-song-name { color: var(--accent-light); }
 .kf-song-meta { font-size: 11px; color: var(--text-faint); font-family: var(--font-mono); }
 
 /* MidiLoader override for dark theme */
-.kf-song-library div[style*="dashed"] {
-  background: var(--surface-2) !important; border-color: var(--border) !important; color: var(--text) !important;
+.kf-song-library {
+  background: transparent;
 }
-.kf-song-library h3 { color: var(--text) !important; font-size: 14px !important; }
+.kf-song-library div[style*="dashed"] {
+  background: var(--surface-2) !important; border-color: var(--border) !important; 
+  color: var(--text) !important; border-radius: 8px !important; padding: 12px !important;
+}
+.kf-song-library h3 { color: var(--text) !important; font-size: 13px !important; font-weight: 600 !important; }
 .kf-song-library p { color: var(--text-dim) !important; font-size: 12px !important; }
 
 /* ── Coach Chat ──────────────────────────────────── */
-.kf-coach { display: flex; flex-direction: column; min-height: 250px; max-height: 350px; }
+.kf-coach { 
+  display: flex; flex-direction: column; min-height: 250px; max-height: 350px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
 .kf-coach-header {
-  display: flex; align-items: center; gap: 8px; padding-bottom: 10px;
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px 10px 16px;
   border-bottom: 1px solid var(--border); margin-bottom: 8px;
 }
 .kf-coach-header strong { font-size: 13px; color: var(--text); }
@@ -191,7 +240,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 }
 .kf-coach-status { display: block; font-size: 10px; color: var(--text-faint); font-family: var(--font-mono); }
 
-.kf-coach-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.kf-coach-messages { 
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; gap: 6px; 
+  min-height: 0; padding: 0 16px;
+}
 .kf-coach-empty { text-align: center; padding: 20px 0; }
 .kf-coach-empty p { font-size: 13px; color: var(--text-dim); }
 .kf-coach-empty .dim { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
@@ -201,20 +253,38 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kf-msg-coach, .kf-msg-system { justify-content: flex-start; }
 
 .kf-msg-bubble {
-  max-width: 85%; padding: 8px 12px; border-radius: 12px;
+  max-width: 85%; padding: 10px 12px; border-radius: 12px;
   font-size: 13px; line-height: 1.5; animation: slideUp 0.25s ease-out;
 }
 .kf-msg-bubble-coach { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
 .kf-msg-bubble-learner { background: rgba(108,92,231,0.15); color: var(--accent-light); }
 .kf-msg-bubble-system { background: rgba(255,107,107,0.08); color: rgba(255,107,107,0.7); border: 1px solid rgba(255,107,107,0.15); font-size: 11px; }
 
-.kf-coach-input { display: flex; gap: 6px; margin-top: 8px; }
+/* Markdown rendering in message bubbles */
+.kf-msg-bubble p { margin: 0; }
+.kf-msg-bubble p + p { margin-top: 8px; }
+.kf-msg-bubble strong { font-weight: 600; }
+.kf-msg-bubble em { font-style: italic; }
+.kf-msg-bubble code { 
+  background: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 3px;
+  font-family: var(--font-mono); font-size: 12px;
+}
+.kf-msg-bubble ul, .kf-msg-bubble ol { margin: 8px 0; padding-left: 16px; }
+.kf-msg-bubble li { margin: 4px 0; }
+.kf-msg-bubble blockquote { 
+  border-left: 3px solid var(--accent); margin: 8px 0; padding: 0 8px;
+  opacity: 0.8;
+}
+
+.kf-coach-input { 
+  display: flex; gap: 6px; margin-top: 8px; padding: 0 16px;
+}
 .kf-coach-input input {
-  flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
+  flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
   background: var(--surface-2); color: var(--text); font-size: 13px; outline: none;
 }
 .kf-coach-input input::placeholder { color: var(--text-faint); }
-.kf-coach-input input:focus { border-color: rgba(108,92,231,0.4); }
+.kf-coach-input input:focus { border-color: rgba(108,92,231,0.4); background: var(--surface-3); }
 .kf-coach-input button { padding: 8px 16px; border-radius: 8px; }
 
 .kf-dots { display: flex; gap: 4px; }
@@ -233,14 +303,78 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-body);
 .kf-skill-track { height: 4px; border-radius: 2px; overflow: hidden; }
 .kf-skill-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 
-/* ── Integration Badges ──────────────────────────── */
-.kf-integrations { display: flex; gap: 6px; }
-.kf-integration-badge {
-  font-size: 10px; font-family: var(--font-mono); padding: 3px 10px;
-  border-radius: 4px; background: var(--surface-2); color: var(--text-faint);
-  border: 1px solid var(--border);
+/* ── Skill Graph ─────────────────────────────────── */
+.kf-skills { 
+  padding: 10px 0; border-bottom: 1px solid var(--border);
 }
-.kf-integration-badge.active { color: var(--neon); border-color: rgba(0,245,212,0.2); }
+.kf-skills-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); font-family: var(--font-mono); 
+  margin: 0 16px 10px 16px; margin-top: 8px;
+}
+.kf-skills-list { 
+  display: flex; flex-direction: column; gap: 8px; 
+  padding: 0 16px;
+}
+.kf-skill-row {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.kf-skill-info { display: flex; justify-content: space-between; align-items: center; }
+.kf-skill-name { font-size: 12px; color: var(--text); font-weight: 500; }
+.kf-skill-value { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); }
+.kf-skill-track { height: 4px; border-radius: 2px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--border); }
+.kf-skill-fill { height: 100%; border-radius: 1px; transition: width 0.5s ease; background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+
+/* ── Integration Badges ──────────────────────────── */
+.kf-integrations { 
+  display: flex; gap: 6px; 
+  padding: 12px 16px; border-top: 1px solid var(--border);
+}
+.kf-integration-badge {
+  font-size: 10px; font-family: var(--font-mono); padding: 5px 10px;
+  border-radius: 6px; background: var(--surface-2); color: var(--text-faint);
+  border: 1px solid var(--border); flex: 1; text-align: center; transition: all 0.2s;
+}
+.kf-integration-badge.active { 
+  color: var(--neon); border-color: rgba(0,245,212,0.25); background: rgba(0,245,212,0.05);
+}
+
+/* ── Loading & Audio ─────────────────────────────── */
+.kf-loading-status {
+  font-size: 12px; color: var(--accent); padding: 8px 0;
+  text-align: center; font-weight: 500;
+}
+
+.kf-audio-player {
+  width: 100%; margin-top: 8px;
+  outline: none; border-radius: 6px;
+  background: var(--surface-2); border: 1px solid var(--border);
+}
+
+/* ── Mode Selector ───────────────────────────────── */
+.kf-mode-selector {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.kf-mode-selector-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-dim); font-family: var(--font-mono); 
+  padding: 0 16px; margin-bottom: 8px; display: block; margin-top: 8px;
+}
+.kf-modes { 
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 0 16px;
+}
+.kf-mode-pill {
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text-dim); cursor: pointer;
+  font-size: 12px; font-weight: 500; transition: all 0.2s;
+}
+.kf-mode-pill:hover { border-color: rgba(108,92,231,0.3); background: var(--surface-3); }
+.kf-mode-pill.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: white; border-color: transparent;
+  box-shadow: 0 0 16px rgba(108,92,231,0.25);
+}
 
 /* ── Animations ──────────────────────────────────── */
 @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }

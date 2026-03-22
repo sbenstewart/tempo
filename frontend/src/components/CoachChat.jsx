@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useStore } from '../lib/store';
 
 function technicalAccuracyPercent(matcherState) {
@@ -101,15 +102,18 @@ export function CoachChat({ wsRef, matcherState, songName, mode, lastAttemptSumm
   const sendToCoach = (isFullAnalysis = false) => {
     const ws = wsRef?.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) {
+      addCoachMessage({
+        role: 'system',
+        content: '⚠️ AI Coach is offline. Make sure the backend server is running.'
+      });
       return;
     }
 
     const trimmed = userMsg.trim();
     if (!isFullAnalysis && !trimmed) return;
 
-    if (!isFullAnalysis) {
-      addCoachMessage({ role: 'user', content: trimmed });
-    }
+    // Add user message to UI
+    addCoachMessage({ role: 'user', content: isFullAnalysis ? 'Get full analysis' : trimmed });
 
     const payload = {
       type: 'coach_request',
@@ -127,59 +131,60 @@ export function CoachChat({ wsRef, matcherState, songName, mode, lastAttemptSumm
   };
 
   return (
-    <div
-      className="kf-coach-chat"
-      style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '8px' }}
-    >
-      <h4 className="kf-section-title">AI Coach</h4>
+    <div className="kf-coach">
+      <div className="kf-coach-header">
+        <div className="kf-coach-avatar">🤖</div>
+        <div>
+          <strong>AI Coach</strong>
+          <div className="kf-coach-status">Live feedback</div>
+        </div>
+        <button className="kf-btn kf-btn-sm kf-btn-accent" onClick={() => sendToCoach(true)}>
+          Analysis
+        </button>
+      </div>
 
-      <div
-        className="kf-chat-debug"
-        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.9rem' }}
-      >
-        <div><strong>Technical Accuracy:</strong> {debugStats.technical}%</div>
-        <div><strong>Friendly Score:</strong> {debugStats.friendly}%</div>
-        <div><strong>Played Notes:</strong> {debugStats.played}</div>
-        <div><strong>Skipped Notes:</strong> {debugStats.skipped}</div>
+      <div style={{ padding: '0 16px', fontSize: '11px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', color: 'var(--text-dim)', marginBottom: '8px' }}>
+        <div><strong>Technical:</strong> {debugStats.technical}%</div>
+        <div><strong>Score:</strong> {debugStats.friendly}%</div>
+        <div><strong>Played:</strong> {debugStats.played}</div>
+        <div><strong>Skipped:</strong> {debugStats.skipped}</div>
         <div><strong>Attempts:</strong> {debugStats.attempts}</div>
         <div><strong>Song:</strong> {songName || '—'}</div>
       </div>
 
-      <div
-        className="kf-chat-messages"
-        style={{ maxHeight: '200px', overflowY: 'auto', background: '#f9f9f9', padding: '10px', borderRadius: '4px' }}
-      >
-        {messages.map((msg) => (
-          <div key={msg.id} style={{ marginBottom: '8px', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-            <span style={{ fontWeight: 'bold', color: msg.role === 'user' ? '#007bff' : '#28a745' }}>
-              {msg.role === 'user' ? 'You: ' : 'Coach: '}
-            </span>
-            {msg.content}
+      <div className="kf-coach-messages">
+        {messages.length === 0 ? (
+          <div className="kf-coach-empty">
+            <p>No messages yet. Try playing some notes and I'll help!</p>
           </div>
-        ))}
+        ) : (
+          [...messages].reverse().map((msg) => {
+            const msgRole = msg.role === 'assistant' ? 'coach' : msg.role === 'user' ? 'learner' : 'system';
+            return (
+              <div key={msg.id} className={`kf-msg kf-msg-${msgRole}`}>
+                <div className={`kf-msg-bubble kf-msg-bubble-${msgRole}`}>
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
-      <div style={{ display: 'flex', gap: '5px' }}>
+      <div className="kf-coach-input">
         <input
           type="text"
           value={userMsg}
           onChange={(e) => setUserMsg(e.target.value)}
           placeholder="Ask for tips..."
-          style={{ flexGrow: 1, padding: '5px' }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') sendToCoach(false);
           }}
         />
-        <button onClick={() => sendToCoach(false)} className="kf-btn kf-btn-accent">Send</button>
+        <button onClick={() => sendToCoach(false)} className="kf-btn kf-btn-sm kf-btn-accent">
+          Send
+        </button>
       </div>
-
-      <button
-        onClick={() => sendToCoach(true)}
-        className="kf-btn kf-btn-purple"
-        style={{ width: '100%' }}
-      >
-        Get Full Analysis
-      </button>
     </div>
   );
 }

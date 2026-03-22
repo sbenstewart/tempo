@@ -9,8 +9,6 @@ import { Waterfall } from './components/Waterfall';
 import { Header } from './components/Header';
 import { CoachChat } from './components/CoachChat';
 import { ScoreDisplay } from './components/ScoreDisplay';
-import { SkillGraph } from './components/SkillGraph';
-import { ModeSelector } from './components/ModeSelector';
 import { useStore } from './lib/store';
 import { isInsForgeConfigured } from './lib/insforgeClient';
 import {
@@ -96,6 +94,26 @@ function App() {
       .then((res) => res.json())
       .then((data) => setExternalLibrary(Array.isArray(data) ? data : []))
       .catch((err) => console.error('Could not load songs.json from public folder:', err));
+  }, []);
+
+  useEffect(() => {
+    const loadDefaultSong = async () => {
+      try {
+        const midi = await Midi.fromUrl('/Happy Birthday MIDI.mid');
+        const cleanedMidi = normalizeMidiData(midi);
+        const defaultSong = { 
+          name: 'Happy Birthday', 
+          midi: cleanedMidi, 
+          id: 'happy-birthday-default' 
+        };
+        setSongLibrary([defaultSong]);
+        setCurrentSongIndex(0);
+      } catch (err) {
+        console.error('Could not load default Happy Birthday MIDI:', err);
+      }
+    };
+
+    loadDefaultSong();
   }, []);
 
   useEffect(() => {
@@ -621,6 +639,10 @@ function App() {
             </div>
           </div>
 
+
+        </div>
+
+        <div className="kf-sidebar">
           <div className="kf-controls">
             <div className="kf-controls-row">
               <button
@@ -669,10 +691,6 @@ function App() {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="kf-sidebar">
-          <ModeSelector />
 
           <div className="kf-song-library">
             <h4 className="kf-section-title">Song Library</h4>
@@ -730,8 +748,6 @@ function App() {
             mode={mode}
             lastAttemptSummary={lastAttemptSummary}
           />
-
-          <SkillGraph />
 
           <div className="kf-integrations">
             <span className={`kf-integration-badge ${isInsForgeConfigured() ? 'active' : ''}`}>
